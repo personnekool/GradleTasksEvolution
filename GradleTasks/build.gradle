@@ -17,3 +17,47 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+/**
+ * Solution exercise 8
+ * Mutable properties can be modified using qualified names
+ * (project.propertyName = X), propertyName = X or setters
+ * At line 5 and 6, IDE set project group and version values
+ * Property setter example at line 31
+ *
+ * IMPORTANT
+ * Each plugin will add new properties. See properties for application
+ * plugin in Gradle Documentation
+ */
+project.setDescription("Solution for exercise 8")
+println "BuildFile: " + project.buildFile
+println "BuildScript: " + project.buildscript
+println "Configuration: " + project.configurations
+println "DefaultTasks: " + project.defaultTasks
+println "Description: " + project.description
+println "Group: " + project.group
+println "Logger: " + project.logger
+println "Name: " + project.name
+println "Parent project: " + project.parent
+println "Project path: " + project.path
+println "Project plugins: "
+    for(item in project.getPlugins()){
+        println "\t ${item.toString()}"
+    }
+println "Project: " + project
+println "Project status: $project.status"
+println "Project tasks: "
+    project.getTasks().each {item-> println "\t $item"}
+println "Project version: ${project.getVersion()}"
+
+// Extra properties can be defined here
+ext{
+    dateRelease = "04-08-2024"
+    responsable = "Mike Smith"
+    countryManager = "Gerome Burns"
+    teamDeveloper = ['Mauricio Bedoya', 'Samuel Serna', 'karol Morgan']
+}
+
+println "Project expected release: " + project.dateRelease
+println "Project Owners: $project.responsable, $countryManager"
+println "Team developer: "
+    project.teamDeveloper.each(person -> println "\t $person")
