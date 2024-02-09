@@ -18,46 +18,50 @@ test {
     useJUnitPlatform()
 }
 /**
- * Solution exercise 8
- * Mutable properties can be modified using qualified names
- * (project.propertyName = X), propertyName = X or setters
- * At line 5 and 6, IDE set project group and version values
- * Property setter example at line 31
+ * Solution exercise 9
+ *
+ * task myTask   // Empty task (no type)
+ * task myTask { configure closure }
+ * task myTask(type: SomeType)  // Empty task
+ * task myTask(type: SomeType) { configure closure }
+ * tasks.register(name){}  // RECOMMENDED and OVERLOADED
+ *
+ * Extra arguments can be defined inside the task closure.
+ * Task properties can be defined using setters or direct assignment
  *
  * IMPORTANT
- * Each plugin will add new properties. See properties for application
- * plugin in Gradle Documentation
+ * Each plugin will add new properties and tasks. See properties and tasks
+ * for application, eclipse and org.jetbrains.intellij plugins in Gradle Documentation
+ * and IntelliJ IDEA web page.
  */
-project.setDescription("Solution for exercise 8")
-println "BuildFile: " + project.buildFile
-println "BuildScript: " + project.buildscript
-println "Configuration: " + project.configurations
-println "DefaultTasks: " + project.defaultTasks
-println "Description: " + project.description
-println "Group: " + project.group
-println "Logger: " + project.logger
-println "Name: " + project.name
-println "Parent project: " + project.parent
-println "Project path: " + project.path
-println "Project plugins: "
-    for(item in project.getPlugins()){
-        println "\t ${item.toString()}"
-    }
-println "Project: " + project
-println "Project status: $project.status"
-println "Project tasks: "
-    project.getTasks().each {item-> println "\t $item"}
-println "Project version: ${project.getVersion()}"
 
-// Extra properties can be defined here
-ext{
-    dateRelease = "04-08-2024"
-    responsable = "Mike Smith"
-    countryManager = "Gerome Burns"
-    teamDeveloper = ['Mauricio Bedoya', 'Samuel Serna', 'karol Morgan']
+tasks.register("Task1"){
+    setDescription("Task1 description goes here.")
+    setGroup("Group1")
+    setDidWork(true)
+    setEnabled(true)
+
+    println "Task state: ${getState()}"
+    println "This is Task1"
 }
 
-println "Project expected release: " + project.dateRelease
-println "Project Owners: $project.responsable, $countryManager"
-println "Team developer: "
-    project.teamDeveloper.each(person -> println "\t $person")
+tasks.register("Task2"){
+    description = "Task2 description goes here."
+    group = "Group1"
+    didWork = true
+    enabled = true
+    dependsOn = ['Task1']
+
+    println "This is Task2"
+}
+
+tasks.register("Task3"){
+    description =" Task3 description goes here."
+    group = "Group1"
+    enabled = false
+    dependsOn = ['Task1', 'Task2']
+
+    println "This is Task3"
+}
+
+
