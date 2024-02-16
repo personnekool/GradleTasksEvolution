@@ -18,7 +18,7 @@ test {
     useJUnitPlatform()
 }
 /**
- * Solution exercise 10
+ * Solution exercise 11
  *
  * Methods define the action and order of tasks execution. This is crucial for
  * Gradle. In the App when you see Action think in terms of closures. Action is
@@ -31,148 +31,29 @@ test {
  */
 
 /*
- *1) doFirst and doLast method calls are deterministics. 
- *   To use the task, type from terminal: gradle taskname (gradle Task1)
+ * onlyIf(..) method must evaluate to true.
  */
 
-tasks.register("Task1"){
-    setDescription("Task1 description goes here.")
-    setGroup("Group1")
-    doFirst {
-        println 'Action1 for Task1 is implemented first'
-    }
-    doLast {
-        println 'Action2 for Task1 is implemented last'
-    }
-}
-/*
- * 2) finalizedBy order of execution is deterministic. Extra properties (ext)
- *    scope only works inside the Task.
- *    finalizeBy method will be the last task called.
- */
-tasks.register("Task2"){
-    description = "Task2 description goes here."
-    group = "Group1"
-    ext{
-        msg = "First task in Task2"
-    }
-    doFirst{
-        println msg
-    }
-	doLast{
-		println 'Last task in Task2'
-	}
-    finalizedBy('Task1')
-}
-/*
- * 3) dependsOn tasks order of execution is not deterministic. Use other methods
- *    to handle order of task execution
- */
-tasks.register("Task3"){
-    description =" Task3 description goes here."
-    group = "Group1"
-	dependsOn = ['Task1', 'Task2']  // Order of execution is not deterministic
-	doFirst{
-		println "This is Task3"
-	}
+ext{
+	errorFound=true	
 }
 
-/*
- * 4) mustRunAfter helps to define order of tasks execution. Ordering is strictly required.
- *    Parallel execution will keep ordering.
- * 4.1) Task 4 depends on Task4.1 and Task4.2 (Order of execution is not deterministic)
- * 4.2) Add mustRunAfter('Task4.2') in Task4.1 and run Task4. Order will be: Task4.1, Task4.2, Task4
- * 4.3) Remove 4.2) and add mustRunAfter('Task4.1') in Task4.2 and run Task4. Ordet will be: Task4.2, Task4.1, Task4
- * 4.4) Remove dependsOn in Task4, add mustRunAfter('Task4.2') in Task4.1 and run Task4.1.
- *		Task4.1 alone will be executed. Task ordering doesn't imply task execution.
- *      The ordering rule only has an effect when both tasks are scheduled for execution.
- * 4.5) Create a circular dependency task. Add dependsOn = ['Task4.1','Task4.2'] in Task4.
- *		Add mustRunAfter('Task4.1') in Task4.2
- *		Add mustRunAfter('Task4.2') in Task4.1. 
- *      Run Task4 and visualize the circular dependency.
- */
-tasks.register("Task4"){
-	description = "Task4 description goes here"
-	group = "Group1"
-	dependsOn = ['Task4.1', 'Task4.2']
+tasks.register('Task1'){
+	group='Support'
+	description='Send support team email if error are founds'
+	ext{
+		team=['mail1@gmail.com','mail2@gmail.com']
+	}
+	onlyIf{
+		return project.errorFound==true && Task1.hasProperty('team')
+	}
 	doFirst{
-		println "First task in Task4"
+		println 'Error found in the project. Action requiered'
 	}
 	doLast{
-		println "Last task in Task4"
+		team.each{
+			email->println "Sending email to $email"
+		}
 	}
 }
-
-
-tasks.register("Task4.1"){
-	description = "Task4 description goes here"
-	group = "Group1"
-	doFirst{
-		println "First task in Task4"
-	}
-	doLast{
-		println "Last task in Task4"
-	}
-	
-	//mustRunAfter('Task4.2')
-}
-tasks.register("Task4.2"){
-	description = "Task4 description goes here"
-	group = "Group1"
-	doFirst{
-		println "First task in Task4"
-	}
-	doLast{
-		println "Last task in Task4"
-	}
-	//mustRunAfter('Task4.1')
-}
-
-/* 5) shouldRunAfter is less strict than mustRunAfter. Accordin to the documentation:
-*  "The 'should run after' ordering rule is similar but less strict as it will be 
-*  ignored in two situations. Firstly if using that rule introduces an ordering cycle. 
-*  Secondly when using parallel execution and all dependencies of a task have been 
-*  satisfied apart from the “should run after” task, then this task will be run 
-*  regardless of whether its “should run after” dependencies have been run or not. 
-*  You should use “should run after” where the ordering is helpful but not strictly required."
-*
-*  5.1) Run gradle Task5.1 Task5 Task5.2. Order will be: Task5, Task5.1 Task5.2
-*  5.2) Run gradle Task5.2 Task5.1 Task5. Order will be: Task5, Task5.1 Task5.2
-*  5.3) Change the code and make task order equal to: Task5.1, Task5.2, Task5
-*       Do not add dependsOn.
-*       Order must remain no matter the task command used (gradle Task5 Task5.1 Task5.2, 
-*       gradle Task5.1 Task5 Task5.2, etc)
-*  5.4) Add a circular dependency and compare the result when 'mustRunAfter' is used.
-*       - Add dependsOn = ['Task5.1] to Task5 and run gradle Task5 (This is ok)
-*		- Change shouldRunAfter('Task5') to mustRunAfter('Task5') in Task5.1 
-*		  Run gradle Task5 (Circular dependecy found)
-*
-*/
- 
- tasks.register('Task5'){
- 	setDescription('Task5 description goes here');
- 	setGroup('Group1')
- 	doLast{
- 		println 'Task5'
- 	}
- }
- 
- tasks.register('Task5.1'){
- 	setDescription('Task5.1 description goes here');
- 	setGroup('Group1')
- 	doLast{
- 		println 'Task5.1'
- 	}
- 	shouldRunAfter('Task5')
- }
- 
- tasks.register('Task5.2'){
- 	setDescription('Task5.2 description goes here');
- 	setGroup('Group1')
- 	doLast{
- 		println 'Task5.2'
- 	}
- 	shouldRunAfter('Task5')
- }
-
 
