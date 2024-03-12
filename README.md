@@ -33,3 +33,4 @@ Implement the exercises in order to understand evolution. IntelliJ IDEA 2023.3.2
     - Make the __classes__ folder equal to the ouput compilation directory (sourceSet configuration).
     - Create the task compilebackup (__task type = javaCompile__) that generates the .class files after running.
     - From __backup_folder/classes__, use __java__ command to [run](./images/javaRun.png) the __Main.class__ file from the terminal window (cmd in windows).
+13. In the previous exercise (__Project 1__), __build__ task did not work because __jar__ settings was not defined. Define the jar configuration that include the __*.class__ files located in __backup_folder/classes/org/example__ and run __clean, build__ gradle tasks. Run the __jar__ [file](./images/Project1_jar.png) generated from the terminal window.

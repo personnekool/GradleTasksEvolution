@@ -53,6 +53,19 @@ sourceSets {
         output.resourcesDir = file('./backup_folder/classes')
     }
 }
+/** Define jar settings to run build task without errors
+ *
+ */
+jar{
+    manifest {
+        attributes 'Main-Class':'org.example.Main'
+    }
+    from('./backup_folder/classes/org/example'){
+        include('*.class')
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+}
 
 tasks.register('compileBackup', JavaCompile){
     source = sourceSets.main.java.srcDirs
