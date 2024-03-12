@@ -18,11 +18,14 @@ test {
     useJUnitPlatform()
 }
 /**
- * Solution exercise 11
+ * Solution exercise 12
  *
  * Methods define the action and order of tasks execution. This is crucial for
  * Gradle. In the App when you see Action think in terms of closures. Action is
  * a Interface used in Java.
+ *
+ * layout.projectDirectory = root of gradle project (where build.gradle is located)
+ * layout.buildDirectory = build folder inside gradle root project
  *
  * IMPORTANT
  * Each plugin will add new properties and tasks. See properties and tasks
@@ -30,30 +33,30 @@ test {
  * and IntelliJ IDEA web page.
  */
 
-/*
- * onlyIf(..) method must evaluate to true.
- */
-
-ext{
-	errorFound=true	
+tasks.register('backupFolder',Copy){
+    // Print both to see the difference
+    println "projectDirectory: ${layout.projectDirectory}"
+    println "buildDirectory: ${layout.buildDirectory}"
+    // Copy operation
+    from(layout.projectDirectory.dir('./src/main/java'))
+    into(layout.projectDirectory.dir('./backup_folder'))
+}
+/* Define for Java only
+ * - java source folder (not files) location
+ * - java folder destination of .class files after compilation
+*/
+sourceSets {
+    main{
+        java{
+            srcDirs = ["$projectDir/backup_folder"]
+        }
+        output.resourcesDir = file('./backup_folder/classes')
+    }
 }
 
-tasks.register('Task1'){
-	group='Support'
-	description='Send support team email if error are founds'
-	ext{
-		team=['mail1@gmail.com','mail2@gmail.com']
-	}
-	onlyIf{
-		return project.errorFound==true && Task1.hasProperty('team')
-	}
-	doFirst{
-		println 'Error found in the project. Action requiered'
-	}
-	doLast{
-		team.each{
-			email->println "Sending email to $email"
-		}
-	}
+tasks.register('compileBackup', JavaCompile){
+    source = sourceSets.main.java.srcDirs
+    include('org/example/*.java')
+    classpath = sourceSets.main.compileClasspath
+    setDestinationDirectory(sourceSets.main.output.resourcesDir)
 }
-
